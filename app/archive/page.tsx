@@ -42,6 +42,11 @@ export default function ArchivePage() {
     files: null 
   });
 
+  // Download Modal State
+  const [showDownloadModal, setShowDownloadModal] = useState(false);
+  const [downloadGroup, setDownloadGroup] = useState<GroupedDocument | null>(null);
+  const [selectedFileIds, setSelectedFileIds] = useState<Set<string>>(new Set());
+
   useEffect(() => {
     checkAdmin();
     fetchDocuments();
@@ -188,6 +193,32 @@ export default function ArchivePage() {
     }
   };
 
+  const handleOpenDownloadModal = (group: GroupedDocument) => {
+    setDownloadGroup(group);
+    setSelectedFileIds(new Set(group.files.map(f => f.id))); // 기본으로 전체 선택
+    setShowDownloadModal(true);
+  };
+
+  const toggleFileSelection = (fileId: string) => {
+    const newSet = new Set(selectedFileIds);
+    if (newSet.has(fileId)) newSet.delete(fileId);
+    else newSet.add(fileId);
+    setSelectedFileIds(newSet);
+  };
+
+  const handleDownloadBatch = async () => {
+    if (!downloadGroup || selectedFileIds.size === 0) return;
+    
+    const filesToDownload = downloadGroup.files.filter(f => selectedFileIds.has(f.id));
+    
+    for (const file of filesToDownload) {
+      await handleDownload(file.file_path, file.file_name);
+      // 브라우저 차단 방지를 위해 아주 짧은 간격 부여
+      await new Promise(resolve => setTimeout(resolve, 300));
+    }
+    setShowDownloadModal(false);
+  };
+
   const getGroupedDocs = () => {
     const groups: { [key: string]: GroupedDocument } = {};
     documents.forEach(doc => {
@@ -313,30 +344,13 @@ export default function ArchivePage() {
                   </div>
                   
                   <div className="flex items-center gap-3">
-                    <div className="relative group/dl">
-                      <button className="btn-secondary h-12 px-6 text-xs font-black border-blue-100 hover:border-blue-600 hover:shadow-lg transition-all group-hover:bg-blue-600 group-hover:text-white whitespace-nowrap flex items-center gap-2">
-                        <span>다운로드 선택</span>
-                        <Download size={18} />
-                      </button>
-                      <div className="absolute right-0 top-full mt-2 w-72 bg-white border border-slate-100 rounded-2xl shadow-2xl z-50 py-3 opacity-0 invisible group-hover/dl:opacity-100 group-hover/dl:visible transition-all animate-in fade-in slide-in-from-top-2">
-                        <p className="px-4 pb-2 mb-2 text-[10px] font-black text-slate-400 border-b border-slate-50 uppercase tracking-widest">파일 목록 ({group.files.length})</p>
-                        <div className="max-h-60 overflow-y-auto px-2">
-                          {group.files.map(file => (
-                            <button 
-                              key={file.id}
-                              onClick={() => handleDownload(file.file_path, file.file_name)}
-                              className="w-full text-left px-3 py-2.5 hover:bg-blue-50 rounded-xl flex items-center justify-between group/item transition-colors"
-                            >
-                              <div className="flex flex-col min-w-0">
-                                <span className="text-[13px] font-bold text-slate-700 truncate group-hover/item:text-blue-600">{file.file_name}</span>
-                                <span className="text-[10px] text-slate-400 uppercase tracking-tighter">{(file.file_size / 1024 / 1024).toFixed(2)} MB</span>
-                              </div>
-                              <FileDown size={16} className="text-slate-300 group-hover/item:text-blue-600 shrink-0 ml-4" />
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
+                    <button 
+                      onClick={() => handleOpenDownloadModal(group)}
+                      className="btn-secondary h-12 px-6 text-xs font-black border-blue-100 hover:border-blue-600 hover:shadow-lg transition-all group-hover:bg-blue-600 group-hover:text-white whitespace-nowrap flex items-center gap-2"
+                    >
+                      <span>다운로드 선택</span>
+                      <Download size={18} />
+                    </button>
 
                     {isAdmin && (
                       <div className="flex items-center gap-2">
@@ -436,6 +450,57 @@ export default function ArchivePage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+      {/* Download Selection Modal */}
+      {showDownloadModal && downloadGroup && (
+        <div className="fixed inset-0 bg-blue-900/40 backdrop-blur-md z-[200] flex items-center justify-center p-6">
+          <div className="bg-white rounded-[40px] w-full max-w-lg shadow-2xl border border-white overflow-hidden animate-in fade-in zoom-in duration-300">
+            <div className="px-10 py-8 bg-blue-600 flex items-center justify-between text-white">
+              <div>
+                <h2 className="text-xl font-black">다운로드 파일 선택</h2>
+                <p className="text-blue-100 text-[10px] font-bold mt-1 uppercase tracking-widest">{downloadGroup.file_name}</p>
+              </div>
+              <button onClick={() => setShowDownloadModal(false)} className="p-2 bg-white/20 hover:bg-white/30 rounded-xl">
+                <X size={24} />
+              </button>
+            </div>
+            <div className="p-8">
+              <div className="max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                <div className="space-y-3">
+                  {downloadGroup.files.map(file => (
+                    <div 
+                      key={file.id}
+                      onClick={() => toggleFileSelection(file.id)}
+                      className={`flex items-center gap-4 p-4 rounded-2xl border-2 transition-all cursor-pointer ${
+                        selectedFileIds.has(file.id) ? 'border-blue-600 bg-blue-50' : 'border-slate-50 hover:border-slate-200'
+                      }`}
+                    >
+                      <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${
+                        selectedFileIds.has(file.id) ? 'bg-blue-600 border-blue-600 text-white' : 'border-slate-200'
+                      }`}>
+                        {selectedFileIds.has(file.id) && <ArrowUpRight size={14} className="rotate-90" />}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[13px] font-black text-slate-800 truncate">{file.file_name}</p>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{(file.file_size / 1024 / 1024).toFixed(2)} MB</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="flex gap-4 mt-8">
+                <button onClick={() => setShowDownloadModal(false)} className="btn-secondary flex-1 h-14">취소</button>
+                <button 
+                  onClick={handleDownloadBatch}
+                  disabled={selectedFileIds.size === 0}
+                  className="btn-primary flex-[2] h-14 text-lg shadow-blue-200 disabled:opacity-50"
+                >
+                  {selectedFileIds.size}개 파일 다운로드
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
