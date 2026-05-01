@@ -85,12 +85,13 @@ export default function FileUpload({ onUploadSuccess, defaultCategory = '기타'
       }
 
       setStatus('success');
+      if (onUploadSuccess) onUploadSuccess(); // 즉시 목록 갱신
+
       setTimeout(() => {
         setShowModal(false);
         setStatus('idle');
         setTitle('');
         setSelectedFiles(null);
-        if (onUploadSuccess) onUploadSuccess();
       }, 1500);
 
     } catch (error: any) {

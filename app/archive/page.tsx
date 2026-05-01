@@ -27,10 +27,10 @@ export default function ArchivePage() {
   // Edit Modal State
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingDoc, setEditingDoc] = useState<Document | null>(null);
-  const [editForm, setEditForm] = useState<{file_name: string, category: string, file: File | null}>({ 
+  const [editForm, setEditForm] = useState<{file_name: string, category: string, files: FileList | null}>({ 
     file_name: '', 
     category: '', 
-    file: null 
+    files: null 
   });
 
   useEffect(() => {
@@ -65,7 +65,7 @@ export default function ArchivePage() {
     setEditForm({ 
       file_name: doc.file_name, 
       category: doc.category || '기타',
-      file: null
+      files: null
     });
     setShowEditModal(true);
   };
@@ -76,44 +76,63 @@ export default function ArchivePage() {
     
     setLoading(true);
     try {
-      let updatePayload: any = { 
-        file_name: editForm.file_name, 
-        category: editForm.category 
-      };
+      // 1. 새 파일들이 선택된 경우 처리
+      if (editForm.files && editForm.files.length > 0) {
+        const filesArray = Array.from(editForm.files);
+        
+        for (let i = 0; i < filesArray.length; i++) {
+          const file = filesArray[i];
+          const fileExt = file.name.split('.').pop();
+          const randomName = `${Math.random().toString(36).substring(7)}_${Date.now()}.${fileExt}`;
+          const newFilePath = `${randomName}`;
 
-      // 1. 새 파일이 선택된 경우 처리
-      if (editForm.file) {
-        const file = editForm.file;
-        const fileExt = file.name.split('.').pop();
-        const randomName = `${Math.random().toString(36).substring(7)}_${Date.now()}.${fileExt}`;
-        const newFilePath = `${randomName}`;
+          // 새 파일 업로드
+          const { error: uploadError } = await supabase.storage
+            .from('documents')
+            .upload(newFilePath, file);
 
-        // 새 파일 업로드
-        const { error: uploadError } = await supabase.storage
+          if (uploadError) throw uploadError;
+
+          if (i === 0) {
+            // 첫 번째 파일은 기존 레코드 업데이트 및 기존 스토리지 파일 삭제
+            await supabase.storage.from('documents').remove([editingDoc.file_path]);
+            
+            const { error: updateError } = await supabase
+              .from('documents')
+              .update({
+                file_name: editForm.file_name,
+                category: editForm.category,
+                file_path: newFilePath,
+                file_size: file.size
+              })
+              .eq('id', editingDoc.id);
+            
+            if (updateError) throw updateError;
+          } else {
+            // 두 번째 파일부터는 새 레코드로 추가
+            const { error: insertError } = await supabase
+              .from('documents')
+              .insert([{
+                file_name: file.name,
+                category: editForm.category,
+                file_path: newFilePath,
+                file_size: file.size
+              }]);
+            
+            if (insertError) throw insertError;
+          }
+        }
+      } else {
+        // 파일 변경 없이 텍스트 정보만 수정하는 경우
+        const { error: updateError } = await supabase
           .from('documents')
-          .upload(newFilePath, file);
-
-        if (uploadError) throw uploadError;
-
-        // 기존 파일 삭제
-        await supabase.storage.from('documents').remove([editingDoc.file_path]);
-
-        // 업데이트 정보에 파일 경로와 크기 추가
-        updatePayload.file_path = newFilePath;
-        updatePayload.file_size = file.size;
-      }
-
-      // 2. DB 정보 업데이트
-      const { data, error } = await supabase
-        .from('documents')
-        .update(updatePayload)
-        .eq('id', editingDoc.id)
-        .select();
-      
-      if (error) throw error;
-
-      if (!data || data.length === 0) {
-        return alert('자료 정보를 수정할 권한이 없습니다.');
+          .update({ 
+            file_name: editForm.file_name, 
+            category: editForm.category 
+          })
+          .eq('id', editingDoc.id);
+        
+        if (updateError) throw updateError;
       }
 
       setShowEditModal(false);
@@ -177,7 +196,7 @@ export default function ArchivePage() {
     setIsEditDragging(false);
     
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      setEditForm({ ...editForm, file: e.dataTransfer.files[0] });
+      setEditForm({ ...editForm, files: e.dataTransfer.files });
     }
   };
 
@@ -352,20 +371,21 @@ export default function ArchivePage() {
                     onDrop={handleEditDrop}
                     className={`flex items-center justify-center gap-3 h-14 rounded-2xl border-2 border-dashed transition-all cursor-pointer ${
                       isEditDragging ? 'border-blue-600 bg-blue-50 scale-[1.02]' :
-                      editForm.file ? 'border-blue-500 bg-blue-50 text-blue-600' : 'border-slate-200 text-slate-400 hover:border-blue-400'
+                      editForm.files ? 'border-blue-500 bg-blue-50 text-blue-600' : 'border-slate-200 text-slate-400 hover:border-blue-400'
                     }`}
                   >
                     <Upload size={20} />
                     <span className="text-xs font-black">
-                      {isEditDragging ? '여기에 놓으세요!' : editForm.file ? `${editForm.file.name} 선택됨` : '교체할 새 파일 선택 또는 드래그...'}
+                      {isEditDragging ? '여기에 놓으세요!' : editForm.files ? `${editForm.files.length}개의 파일 선택됨` : '교체할 새 파일 선택 또는 드래그...'}
                     </span>
                     <input 
                       type="file" 
-                      onChange={e => setEditForm({...editForm, file: e.target.files?.[0] || null})} 
+                      multiple
+                      onChange={e => setEditForm({...editForm, files: e.target.files})} 
                       className="hidden" 
                     />
                   </label>
-                  {!editForm.file && (
+                  {!editForm.files && (
                     <p className="text-[10px] text-slate-400 px-1 italic">* 기존 파일을 유지하려면 비워두세요.</p>
                   )}
                 </div>
