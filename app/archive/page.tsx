@@ -24,7 +24,7 @@ interface GroupedDocument {
   files: { id: string; file_name: string; original_name: string; file_path: string; file_size: number }[];
 }
 
-const CATEGORIES = ['전체 자료', '예산지침', '인사/급여', '회계/지출', '매뉴얼', '기타'];
+const CATEGORIES = ['전체 자료', '예산지침', '계약', '인사/급여', '회계/지출', '매뉴얼', '기타'];
 
 export default function ArchivePage() {
   const [documents, setDocuments] = useState<Document[]>([]);
