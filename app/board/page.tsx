@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { LayoutDashboard, Plus, Search, Filter, Trash2, X, Bell, User, MessageSquare, HelpCircle, Megaphone, Edit3, ChevronRight, Hash, Clock, FileText } from 'lucide-react';
+import { LayoutDashboard, Plus, Search, Filter, Trash2, X, Bell, User, MessageSquare, HelpCircle, Megaphone, Edit3, ChevronRight, Hash, Clock, FileText, Share2 } from 'lucide-react';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 
@@ -17,6 +17,7 @@ interface Post {
 
 const BOARDS = [
   { id: 'notice', name: '공지사항', icon: <Megaphone size={18} />, color: 'bg-blue-50 text-blue-600' },
+  { id: 'work_share', name: '업무공유', icon: <Share2 size={18} />, color: 'bg-orange-50 text-orange-600' },
   { id: 'free', name: '자유게시판', icon: <MessageSquare size={18} />, color: 'bg-green-50 text-green-600' },
   { id: 'qna', name: '질의응답', icon: <HelpCircle size={18} />, color: 'bg-purple-50 text-purple-600' },
 ];
@@ -190,6 +191,7 @@ export default function BoardPage() {
               </h1>
               <p className="text-sm text-slate-500 mt-2 font-medium">
                 {activeBoard === 'notice' && '행정지원과의 공식 안내 및 긴급 소식을 공유합니다.'}
+                {activeBoard === 'work_share' && '실무 노하우와 유용한 업무 팁을 함께 나눕니다.'}
                 {activeBoard === 'free' && '자유롭게 의견을 나누는 열린 공간입니다.'}
                 {activeBoard === 'qna' && '궁금한 점을 묻고 전문가의 답변을 받으세요.'}
               </p>
