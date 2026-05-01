@@ -160,7 +160,7 @@ export default function ArchivePage() {
               <h1 className="text-4xl font-black text-slate-900 tracking-tight">
                 {activeCategory}
               </h1>
-              <p className="text-sm text-slate-500 mt-2 font-medium">서울 교육 행정의 모든 지침과 서식을 고화질 PDF로 제공합니다.</p>
+              <p className="text-sm text-slate-500 mt-2 font-medium">서울 교육 행정의 다양한 지침과 서식을 신속하게 공유합니다.</p>
             </div>
             
             <div className="flex items-center gap-4">
@@ -175,7 +175,7 @@ export default function ArchivePage() {
                 />
               </div>
               {isAdmin && (
-                <FileUpload onUploadSuccess={fetchDocuments} category={activeCategory} />
+                <FileUpload onUploadSuccess={fetchDocuments} defaultCategory={activeCategory} />
               )}
             </div>
           </header>
@@ -191,7 +191,7 @@ export default function ArchivePage() {
               filteredDocs.map((doc) => (
                 <div key={doc.id} className="modern-card p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:border-blue-400 hover:shadow-2xl hover:shadow-blue-100 group">
                   <div className="flex items-center gap-6 flex-1 min-w-0">
-                    <div className="w-14 h-14 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center group-hover:bg-red-500 group-hover:text-white transition-all shadow-inner shrink-0">
+                    <div className="w-14 h-14 bg-blue-50 text-blue-500 rounded-2xl flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all shadow-inner shrink-0">
                       <FileText size={28} />
                     </div>
                     <div className="flex-1 min-w-0">
