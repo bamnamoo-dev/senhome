@@ -14,6 +14,28 @@ export default function FileUpload({ onUploadSuccess, defaultCategory = '기타'
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleDrag = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === 'dragenter' || e.type === 'dragover') {
+      setIsDragging(true);
+    } else if (e.type === 'dragleave') {
+      setIsDragging(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      setSelectedFiles(e.dataTransfer.files);
+    }
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       setSelectedFiles(e.target.files);
@@ -44,7 +66,6 @@ export default function FileUpload({ onUploadSuccess, defaultCategory = '기타'
         if (uploadError) throw uploadError;
 
         // 2. Insert metadata into Database
-        // 파일이 여러 개일 경우 제목 뒤에 번호를 붙임
         const displayTitle = filesArray.length > 1 && title 
           ? `${title}_${i + 1}` 
           : (title || file.name);
@@ -83,7 +104,6 @@ export default function FileUpload({ onUploadSuccess, defaultCategory = '기타'
 
   return (
     <>
-      {/* Upload Trigger Button */}
       <button 
         onClick={() => setShowModal(true)}
         className="btn-primary h-12 px-8 shadow-blue-200"
@@ -92,7 +112,6 @@ export default function FileUpload({ onUploadSuccess, defaultCategory = '기타'
         <span>자료 업로드</span>
       </button>
 
-      {/* Upload Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-blue-900/40 backdrop-blur-md z-[300] flex items-center justify-center p-6">
           <div className="bg-white rounded-[40px] w-full max-w-xl shadow-2xl border border-white overflow-hidden animate-in fade-in zoom-in duration-300">
@@ -135,12 +154,19 @@ export default function FileUpload({ onUploadSuccess, defaultCategory = '기타'
                 </div>
                 <div className="col-span-2 md:col-span-1">
                   <label className="block text-[10px] font-black text-slate-400 mb-2 uppercase tracking-widest px-1">파일 선택 (여러 개 가능)</label>
-                  <label className={`flex items-center justify-center gap-2 h-14 rounded-2xl border-2 border-dashed transition-all cursor-pointer ${
-                    selectedFiles ? 'border-blue-500 bg-blue-50 text-blue-600' : 'border-slate-200 text-slate-400 hover:border-blue-400'
-                  }`}>
+                  <label 
+                    onDragEnter={handleDrag}
+                    onDragOver={handleDrag}
+                    onDragLeave={handleDrag}
+                    onDrop={handleDrop}
+                    className={`flex items-center justify-center gap-2 h-14 rounded-2xl border-2 border-dashed transition-all cursor-pointer ${
+                      isDragging ? 'border-blue-600 bg-blue-50 scale-[1.02]' : 
+                      selectedFiles ? 'border-blue-500 bg-blue-50 text-blue-600' : 'border-slate-200 text-slate-400 hover:border-blue-400'
+                    }`}
+                  >
                     {selectedFiles ? <Files size={20} /> : <FilePlus size={20} />}
                     <span className="text-xs font-black">
-                      {selectedFiles ? `${selectedFiles.length}개의 파일 선택됨` : '파일 찾기...'}
+                      {isDragging ? '여기에 놓으세요!' : selectedFiles ? `${selectedFiles.length}개의 파일 선택됨` : '파일 찾기 또는 드래그...'}
                     </span>
                     <input 
                       type="file" 

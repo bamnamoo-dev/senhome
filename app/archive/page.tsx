@@ -22,6 +22,7 @@ export default function ArchivePage() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("전체 자료");
+  const [isEditDragging, setIsEditDragging] = useState(false);
 
   // Edit Modal State
   const [showEditModal, setShowEditModal] = useState(false);
@@ -158,6 +159,26 @@ export default function ArchivePage() {
     document.body.appendChild(link);
     link.click();
     link.remove();
+  };
+
+  const handleEditDrag = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === 'dragenter' || e.type === 'dragover') {
+      setIsEditDragging(true);
+    } else if (e.type === 'dragleave') {
+      setIsEditDragging(false);
+    }
+  };
+
+  const handleEditDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsEditDragging(false);
+    
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      setEditForm({ ...editForm, file: e.dataTransfer.files[0] });
+    }
   };
 
   const filteredDocs = documents.filter(doc => {
@@ -324,12 +345,19 @@ export default function ArchivePage() {
               <div>
                 <label className="block text-[10px] font-black text-slate-400 mb-3 px-1 uppercase tracking-widest">파일 교체 (선택사항)</label>
                 <div className="flex flex-col gap-2">
-                  <label className={`flex items-center justify-center gap-3 h-14 rounded-2xl border-2 border-dashed transition-all cursor-pointer ${
-                    editForm.file ? 'border-blue-500 bg-blue-50 text-blue-600' : 'border-slate-200 text-slate-400 hover:border-blue-400'
-                  }`}>
+                  <label 
+                    onDragEnter={handleEditDrag}
+                    onDragOver={handleEditDrag}
+                    onDragLeave={handleEditDrag}
+                    onDrop={handleEditDrop}
+                    className={`flex items-center justify-center gap-3 h-14 rounded-2xl border-2 border-dashed transition-all cursor-pointer ${
+                      isEditDragging ? 'border-blue-600 bg-blue-50 scale-[1.02]' :
+                      editForm.file ? 'border-blue-500 bg-blue-50 text-blue-600' : 'border-slate-200 text-slate-400 hover:border-blue-400'
+                    }`}
+                  >
                     <Upload size={20} />
                     <span className="text-xs font-black">
-                      {editForm.file ? `${editForm.file.name} 선택됨` : '교체할 새 파일 선택...'}
+                      {isEditDragging ? '여기에 놓으세요!' : editForm.file ? `${editForm.file.name} 선택됨` : '교체할 새 파일 선택 또는 드래그...'}
                     </span>
                     <input 
                       type="file" 
