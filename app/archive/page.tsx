@@ -153,6 +153,41 @@ export default function ArchivePage() {
     }
   };
 
+  const handleDownload = async (path: string, name: string) => {
+    const { data, error } = await supabase.storage.from('documents').download(path);
+    if (error) {
+      alert('파일 다운로드 실패');
+      return;
+    }
+    const url = window.URL.createObjectURL(data);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', name);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  };
+
+  const handleEditDrag = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === 'dragenter' || e.type === 'dragover') {
+      setIsEditDragging(true);
+    } else if (e.type === 'dragleave') {
+      setIsEditDragging(false);
+    }
+  };
+
+  const handleEditDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsEditDragging(false);
+    
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      setEditForm({ ...editForm, files: e.dataTransfer.files });
+    }
+  };
+
   const getGroupedDocs = () => {
     const groups: { [key: string]: GroupedDocument } = {};
     documents.forEach(doc => {
