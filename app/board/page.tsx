@@ -89,17 +89,41 @@ export default function BoardPage() {
 
     try {
       if (editingPostId) {
-        const { error } = await supabase.from('posts').update(newPost).eq('id', editingPostId);
+        // 수정 시 .select()를 추가하여 실제로 행이 업데이트 되었는지 확인 (RLS 정책 대응)
+        const { data, error } = await supabase
+          .from('posts')
+          .update({
+            title: newPost.title,
+            content: newPost.content,
+            category: newPost.category
+          })
+          .eq('id', editingPostId)
+          .select();
+
         if (error) throw error;
+        
+        if (!data || data.length === 0) {
+          return alert('게시글을 수정할 권한이 없거나 이미 삭제된 게시글입니다.');
+        }
       } else {
-        const { error } = await supabase.from('posts').insert([{ ...newPost, board_type: activeBoard, author_email: user.email }]);
+        const { error } = await supabase.from('posts').insert([{ 
+          ...newPost, 
+          board_type: activeBoard, 
+          author_email: user.email 
+        }]);
         if (error) throw error;
       }
+      
       setShowWriteModal(false);
       setEditingPostId(null);
       fetchPosts();
+      
+      if (editingPostId) {
+        alert('수정되었습니다.');
+      }
     } catch (error: any) {
-      alert(`저장 실패: ${error.message}`);
+      console.error('Save error:', error);
+      alert(`저장 실패: ${error.message || '알 수 없는 오류가 발생했습니다.'}`);
     }
   };
 

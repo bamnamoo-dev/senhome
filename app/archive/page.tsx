@@ -65,14 +65,21 @@ export default function ArchivePage() {
     e.preventDefault();
     if (!editingDoc) return;
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('documents')
         .update({ file_name: editForm.file_name, category: editForm.category })
-        .eq('id', editingDoc.id);
+        .eq('id', editingDoc.id)
+        .select();
       
       if (error) throw error;
+
+      if (!data || data.length === 0) {
+        return alert('자료 정보를 수정할 권한이 없습니다.');
+      }
+
       setShowEditModal(false);
       fetchDocuments();
+      alert('자료 정보가 수정되었습니다.');
     } catch (error: any) {
       alert(`수정 실패: ${error.message}`);
     }
