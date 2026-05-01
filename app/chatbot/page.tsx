@@ -13,7 +13,7 @@ interface AIBot {
   icon_type: string;
 }
 
-const CATEGORIES = ["전체", "예산지침", "인사/노무", "시설관리", "법령/규정", "매뉴얼", "기타"];
+const CATEGORIES = ["전체", "예산지침", "계약", "인사", "급여", "회계", "지출", "매뉴얼", "기타"];
 
 export default function ChatbotPage() {
   const [bots, setBots] = useState<AIBot[]>([]);

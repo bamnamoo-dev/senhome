@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Upload, Loader2, CheckCircle2, X, FilePlus, Files } from 'lucide-react';
 
-const CATEGORIES = ['예산지침', '계약', '인사/급여', '회계/지출', '매뉴얼', '기타'];
+const CATEGORIES = ['예산지침', '계약', '인사', '급여', '회계', '지출', '매뉴얼', '기타'];
 
 export default function FileUpload({ onUploadSuccess, defaultCategory = '기타' }: { onUploadSuccess?: () => void, defaultCategory?: string }) {
   const [showModal, setShowModal] = useState(false);
