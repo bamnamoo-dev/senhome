@@ -25,6 +25,12 @@ export default function Navbar() {
     checkUser();
   }, []);
 
+  const handleLogout = async () => {
+    if (!confirm('로그아웃 하시겠습니까?')) return;
+    await supabase.auth.signOut();
+    window.location.href = '/';
+  };
+
   return (
     <nav className="glass-nav h-16">
       <div className="max-w-[1200px] mx-auto px-6 h-full flex items-center justify-between">
@@ -63,14 +69,18 @@ export default function Navbar() {
         {/* Right Controls */}
         <div className="flex items-center gap-4 ml-8 shrink-0">
           {user ? (
-            <div className="flex items-center gap-3 pl-2 py-1 group cursor-pointer">
+            <div className="flex items-center gap-3 pl-2 py-1 group">
               <div className="flex flex-col items-end hidden lg:block">
                 <span className="text-xs font-black text-slate-800">{user.email.split('@')[0]}님</span>
                 <span className="text-[10px] font-bold text-blue-500 uppercase tracking-tighter">Verified Member</span>
               </div>
-              <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center shadow-inner group-hover:bg-blue-600 group-hover:text-white transition-all">
-                <User size={20} />
-              </div>
+              <button 
+                onClick={handleLogout}
+                className="w-10 h-10 bg-red-50 text-red-500 rounded-xl flex items-center justify-center shadow-inner hover:bg-red-500 hover:text-white transition-all"
+                title="로그아웃"
+              >
+                <LogIn className="rotate-180" size={20} />
+              </button>
             </div>
           ) : (
             <Link href="/login" className="btn-primary py-2 px-5 text-xs">

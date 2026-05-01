@@ -23,7 +23,7 @@ export default function Home() {
             <span className="text-[10px] font-black text-blue-900 uppercase tracking-widest">I-SENSE CONTROL</span>
           </div>
           <h1 className="text-4xl font-black text-slate-900 tracking-tighter">
-            안녕하세요, <span className="text-blue-600">행정 센터</span>입니다.
+            안녕하세요, <span className="text-blue-600">교육행정 공유 사이트</span>입니다.
           </h1>
           <p className="text-slate-400 font-medium text-sm mt-1">원하시는 업무 메뉴를 선택하세요.</p>
         </header>
