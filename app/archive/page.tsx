@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { FileText, Download, Search, Trash2, ChevronRight, Hash, FolderOpen, ArrowUpRight, Share2, FileDown, Edit3, X } from 'lucide-react';
+import { FileText, Download, Search, Trash2, ChevronRight, Hash, FolderOpen, ArrowUpRight, Share2, FileDown, Edit3, X, Upload } from 'lucide-react';
 import FileUpload from '@/components/features/FileUpload';
 import { supabase } from '@/lib/supabase';
 
