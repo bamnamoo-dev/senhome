@@ -341,12 +341,13 @@ export default function ArchivePage() {
                         </span>
                       </div>
                       
-                      {/* 파일 목록 추가 표시 */}
-                      <div className="flex flex-wrap gap-2 mt-3">
+                      {/* 파일 목록 강조 표시 */}
+                      <div className="flex flex-col gap-2 mt-4">
                         {group.files.map(file => (
-                          <div key={file.id} className="flex items-center gap-1.5 px-2.5 py-1 bg-slate-50 text-slate-500 rounded-lg border border-slate-100">
-                            <FileDown size={12} className="opacity-50" />
-                            <span className="text-[10px] font-bold truncate max-w-[150px]">{file.file_name}</span>
+                          <div key={file.id} className="flex items-center gap-3 px-4 py-2.5 bg-blue-50/50 text-slate-700 rounded-xl border border-blue-100/50 group/file transition-colors hover:bg-blue-100/50">
+                            <FileDown size={16} className="text-blue-500" />
+                            <span className="text-[13px] font-black leading-tight">{file.file_name}</span>
+                            <span className="text-[10px] font-bold text-slate-400 ml-auto uppercase tracking-tighter">{(file.file_size / 1024 / 1024).toFixed(2)} MB</span>
                           </div>
                         ))}
                       </div>
