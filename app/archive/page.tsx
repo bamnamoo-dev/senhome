@@ -340,6 +340,16 @@ export default function ArchivePage() {
                           총 {group.files.length}개 ({(group.files.reduce((acc, f) => acc + f.file_size, 0) / 1024 / 1024).toFixed(2)} MB)
                         </span>
                       </div>
+                      
+                      {/* 파일 목록 추가 표시 */}
+                      <div className="flex flex-wrap gap-2 mt-3">
+                        {group.files.map(file => (
+                          <div key={file.id} className="flex items-center gap-1.5 px-2.5 py-1 bg-slate-50 text-slate-500 rounded-lg border border-slate-100">
+                            <FileDown size={12} className="opacity-50" />
+                            <span className="text-[10px] font-bold truncate max-w-[150px]">{file.file_name}</span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
                   
