@@ -354,7 +354,7 @@ export default function ArchivePage() {
                 <X size={24} />
               </button>
             </div>
-            <form onSubmit={handleUpdateDoc} className="p-10 space-y-8 text-sm">
+            <form onSubmit={handleUpdateGroup} className="p-10 space-y-8 text-sm">
               <div>
                 <label className="block text-[10px] font-black text-slate-400 mb-3 px-1 uppercase tracking-widest">파일 명칭</label>
                 <input required type="text" value={editForm.file_name} onChange={e => setEditForm({...editForm, file_name: e.target.value})} className="modern-input h-14 font-bold" />
