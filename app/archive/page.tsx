@@ -254,10 +254,10 @@ export default function ArchivePage() {
   });
 
   return (
-    <div className="min-h-screen bg-md-surface flex pt-8">
+    <div className="h-screen bg-md-surface flex pt-16 overflow-hidden">
       {/* Sidebar */}
-      <aside className="w-72 bg-white border-r border-blue-50 hidden md:flex flex-col p-8 fixed h-full shadow-sm">
-        <div className="space-y-2 mt-0">
+      <aside className="w-72 bg-white border-r border-blue-50 hidden md:flex flex-col p-8 fixed top-16 bottom-0 shadow-sm overflow-y-auto">
+        <div className="space-y-2">
           <p className="text-[10px] font-black text-slate-300 px-4 mb-6 uppercase tracking-widest">Library Navigator</p>
           {CATEGORIES.map(cat => (
             <button
@@ -282,7 +282,7 @@ export default function ArchivePage() {
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 md:ml-72 p-6 md:p-8 overflow-y-auto">
+      <main className="flex-1 md:ml-72 p-6 md:p-8 overflow-y-auto h-full">
         <div className="max-w-5xl mx-auto">
           {/* Header */}
           <header className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-8">
