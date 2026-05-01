@@ -51,6 +51,7 @@ export default function FileUpload({ onUploadSuccess, defaultCategory = '기타'
       setStatus('idle');
 
       const filesArray = Array.from(selectedFiles);
+      const groupId = crypto.randomUUID(); // 모든 파일을 하나로 묶을 그룹 ID 생성
       
       for (let i = 0; i < filesArray.length; i++) {
         const file = filesArray[i];
@@ -66,9 +67,7 @@ export default function FileUpload({ onUploadSuccess, defaultCategory = '기타'
         if (uploadError) throw uploadError;
 
         // 2. Insert metadata into Database
-        const displayTitle = filesArray.length > 1 && title 
-          ? `${title}_${i + 1}` 
-          : (title || file.name);
+        const displayTitle = title || file.name;
 
         const { error: dbError } = await supabase
           .from('documents')
@@ -77,7 +76,8 @@ export default function FileUpload({ onUploadSuccess, defaultCategory = '기타'
               file_name: displayTitle, 
               file_path: filePath, 
               file_size: file.size,
-              category: category
+              category: category,
+              group_id: groupId // 생성된 그룹 ID 적용
             }
           ]);
 
