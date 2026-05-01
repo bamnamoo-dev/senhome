@@ -1,8 +1,10 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
-const pdf = require('pdf-parse');
+
+export const dynamic = 'force-dynamic';
 
 export async function POST(req: Request) {
+  const pdf = require('pdf-parse');
   try {
     const { filePath, documentId } = await req.json();
 
