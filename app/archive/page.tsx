@@ -356,11 +356,18 @@ export default function ArchivePage() {
                   
                   <div className="flex items-center gap-3">
                     <button 
-                      onClick={() => handleOpenDownloadModal(group)}
-                      className="btn-secondary h-12 px-6 text-xs font-black border-blue-100 hover:border-blue-600 hover:shadow-lg transition-all group-hover:bg-blue-600 group-hover:text-white whitespace-nowrap flex items-center gap-2"
+                      onClick={() => group.files.length === 1 
+                        ? handleDownload(group.files[0].file_path, group.files[0].file_name)
+                        : handleOpenDownloadModal(group)
+                      }
+                      className={`h-12 px-6 text-xs font-black border transition-all rounded-xl flex items-center gap-2 ${
+                        group.files.length === 1 
+                        ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-200 hover:scale-105' 
+                        : 'bg-white text-blue-600 border-blue-100 hover:border-blue-600 hover:bg-blue-50'
+                      }`}
                     >
-                      <span>다운로드 선택</span>
-                      <Download size={18} />
+                      <span>{group.files.length === 1 ? '바로 다운로드' : '다운로드 선택'}</span>
+                      {group.files.length === 1 ? <FileDown size={18} /> : <Download size={18} />}
                     </button>
 
                     {isAdmin && (
