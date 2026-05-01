@@ -88,8 +88,12 @@ export default function BoardPage() {
     if (!user) return alert('로그인이 필요합니다.');
 
     try {
+      // 권한 체크: 공지사항은 관리자만 작성/수정 가능
+      if (activeBoard === 'notice' && !isAdmin) {
+        return alert('공지사항은 관리자만 작성하거나 수정할 수 있습니다.');
+      }
+
       if (editingPostId) {
-        // 수정 시 .select()를 추가하여 실제로 행이 업데이트 되었는지 확인 (RLS 정책 대응)
         const { data, error } = await supabase
           .from('posts')
           .update({
@@ -202,7 +206,7 @@ export default function BoardPage() {
                   className="modern-input pl-12 h-12"
                 />
               </div>
-              {user && (
+              {user && (isAdmin || activeBoard !== 'notice') && (
                 <button onClick={() => handleOpenWriteModal()} className="btn-primary h-12 px-8 shadow-blue-200">
                   <Plus size={20} />
                   <span>글쓰기</span>
