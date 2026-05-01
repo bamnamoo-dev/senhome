@@ -8,6 +8,7 @@ import { supabase } from '@/lib/supabase';
 interface Document {
   id: string;
   file_name: string;
+  original_name: string;
   file_path: string;
   file_size: number;
   category: string;
@@ -20,7 +21,7 @@ interface GroupedDocument {
   file_name: string;
   category: string;
   created_at: string;
-  files: { id: string; file_name: string; file_path: string; file_size: number }[];
+  files: { id: string; file_name: string; original_name: string; file_path: string; file_size: number }[];
 }
 
 const CATEGORIES = ['전체 자료', '예산지침', '인사/급여', '회계/지출', '매뉴얼', '기타'];
@@ -131,6 +132,7 @@ export default function ArchivePage() {
           await supabase.storage.from('documents').upload(newFilePath, file);
           await supabase.from('documents').insert([{
             file_name: i === 0 ? editForm.file_name : file.name,
+            original_name: file.name,
             category: editForm.category,
             file_path: newFilePath,
             file_size: file.size,
@@ -235,6 +237,7 @@ export default function ArchivePage() {
       groups[gid].files.push({
         id: doc.id,
         file_name: doc.file_name,
+        original_name: doc.original_name || doc.file_name,
         file_path: doc.file_path,
         file_size: doc.file_size
       });
@@ -346,7 +349,7 @@ export default function ArchivePage() {
                         {group.files.map(file => (
                           <div key={file.id} className="flex items-center gap-3 px-4 py-2.5 bg-blue-50/50 text-slate-700 rounded-xl border border-blue-100/50 group/file transition-colors hover:bg-blue-100/50">
                             <FileDown size={16} className="text-blue-500" />
-                            <span className="text-[13px] font-black leading-tight">{file.file_name}</span>
+                            <span className="text-[13px] font-black leading-tight">{file.original_name}</span>
                             <span className="text-[10px] font-bold text-slate-400 ml-auto uppercase tracking-tighter">{(file.file_size / 1024 / 1024).toFixed(2)} MB</span>
                           </div>
                         ))}
@@ -501,7 +504,7 @@ export default function ArchivePage() {
                         {selectedFileIds.has(file.id) && <ArrowUpRight size={14} className="rotate-90" />}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-[13px] font-black text-slate-800 truncate">{file.file_name}</p>
+                        <p className="text-[13px] font-black text-slate-800 truncate">{file.original_name}</p>
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{(file.file_size / 1024 / 1024).toFixed(2)} MB</p>
                       </div>
                     </div>

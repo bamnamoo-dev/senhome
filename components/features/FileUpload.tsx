@@ -74,10 +74,11 @@ export default function FileUpload({ onUploadSuccess, defaultCategory = '기타'
           .insert([
             { 
               file_name: displayTitle, 
+              original_name: file.name, // 실제 파일명 저장
               file_path: filePath, 
               file_size: file.size,
               category: category,
-              group_id: groupId // 생성된 그룹 ID 적용
+              group_id: groupId 
             }
           ]);
 
