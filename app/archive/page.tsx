@@ -254,10 +254,10 @@ export default function ArchivePage() {
   });
 
   return (
-    <div className="min-h-screen bg-md-surface flex pt-16">
+    <div className="min-h-screen bg-md-surface flex pt-8">
       {/* Sidebar */}
       <aside className="w-72 bg-white border-r border-blue-50 hidden md:flex flex-col p-8 fixed h-full shadow-sm">
-        <div className="space-y-2 mt-4">
+        <div className="space-y-2 mt-0">
           <p className="text-[10px] font-black text-slate-300 px-4 mb-6 uppercase tracking-widest">Library Navigator</p>
           {CATEGORIES.map(cat => (
             <button
@@ -282,10 +282,10 @@ export default function ArchivePage() {
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 md:ml-72 p-8 md:p-12 overflow-y-auto">
+      <main className="flex-1 md:ml-72 p-6 md:p-8 overflow-y-auto">
         <div className="max-w-5xl mx-auto">
           {/* Header */}
-          <header className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-12">
+          <header className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-8">
             <div>
               <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-[10px] font-black uppercase tracking-widest mb-3">
                 Digital Archive System
